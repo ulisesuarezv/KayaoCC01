@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Sleigh";
+  src: url("../fonts/SleighVF.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@theme {
+  --color-lime: #FBFF74;
+  --color-dark: #000000;
+  --color-teal: #4C9481;
+  --font-sleigh: "Sleigh", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #000000;
+  color: #FBFF74;
+  font-family: var(--font-sleigh);
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: #FBFF74;
+  color: #000000;
+}

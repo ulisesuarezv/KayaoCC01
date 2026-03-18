@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build:*)",
+      "Bash(export:*)",
+      "Bash(source:*)",
+      "Bash(npx vite:*)",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_run_code",
+      "Bash(pnpm lint:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(do cp:*)",
+      "Bash(npm run:*)",
+      "Bash(pnpm dev:*)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(curl:*)",
+      "Bash(export PATH=\"$HOME/.local/share/pnpm:$HOME/.pnpm:$HOME/Library/pnpm:$PATH:/opt/homebrew/bin:/usr/local/bin\" && which pnpm 2>/dev/null || npx pnpm --version 2>/dev/null || echo \"trying node_modules\" && ls /Users/ulises/Desktop/tryOnee/tryoneKayao/node_modules/.bin/vite 2>/dev/null)",
+      "Bash(mkdir -p /Users/ulises/Desktop/tryOnee/tryoneKayao/public/models && cp /Users/ulises/Downloads/simbolo_kayaoGOD.glb /Users/ulises/Desktop/tryOnee/tryoneKayao/public/models/)",
+      "Bash(npx gltfjsx:*)",
+      "Bash(mv /Users/ulises/Desktop/tryOnee/tryoneKayao/simbolo_kayaoGOD-transformed.glb /Users/ulises/Desktop/tryOnee/tryoneKayao/public/models/ && rm /Users/ulises/Desktop/tryOnee/tryoneKayao/Simbolo_kayaoGOD.jsx)",
+      "Bash(pnpm add:*)",
+      "WebFetch(domain:motion.zajno.com)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
