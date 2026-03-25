@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Large unoptimized 3D models (use *-transformed.glb versions)
+public/models/simbolo_kayaoGOD.glb
+public/models/pin_logo.glb
+
+# Screenshots
+*.png
