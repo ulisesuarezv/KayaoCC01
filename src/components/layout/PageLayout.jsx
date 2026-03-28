@@ -1,6 +1,5 @@
 import { useRef } from 'react'
 import { useGSAP } from '@gsap/react'
-import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLenis } from '../../hooks/useLenis'
 import { useAppStore } from '../../stores/useAppStore'
@@ -9,8 +8,7 @@ import { About } from '../dom/About'
 import { Manifesto } from '../dom/Manifesto'
 import { Process } from '../dom/Process'
 import { Contact } from '../dom/Contact'
-
-gsap.registerPlugin(ScrollTrigger)
+import { HeroAboutBridge } from '../dom/HeroAboutBridge'
 
 const sections = ['hero', 'about', 'manifesto', 'process', 'contact']
 
@@ -19,16 +17,6 @@ export const PageLayout = () => {
   useLenis()
 
   useGSAP(() => {
-    // Global scroll progress tracking
-    ScrollTrigger.create({
-      trigger: mainRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => {
-        useAppStore.getState().setScrollProgress(self.progress)
-      },
-    })
-
     // Per-section active detection
     sections.forEach((name, i) => {
       const el = document.querySelector(`[data-section="${name}"]`)
@@ -53,6 +41,7 @@ export const PageLayout = () => {
       <Manifesto />
       <Process />
       <Contact />
+      <HeroAboutBridge />
     </main>
   )
 }
