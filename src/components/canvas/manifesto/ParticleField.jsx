@@ -1,117 +1,103 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { pickColor, generateRadius } from './particleUtils'
 
-const PARTICLE_COUNT = 1200
+const isMobile = window.innerWidth < 1024
+const CIRCLE_COUNT = isMobile ? 60 : 160
+const CIRCLE_SEGMENTS = isMobile ? 16 : 32
 
-// Generate a small circular texture via canvas
-const createCircleTexture = () => {
-  const size = 64
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext('2d')
-  const center = size / 2
-  const gradient = ctx.createRadialGradient(center, center, 0, center, center, center)
-  gradient.addColorStop(0, 'rgba(255,255,255,1)')
-  gradient.addColorStop(0.4, 'rgba(255,255,255,0.6)')
-  gradient.addColorStop(1, 'rgba(255,255,255,0)')
-  ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, size, size)
-  return new THREE.CanvasTexture(canvas)
+// Scratch object used only during initialization
+const _obj = new THREE.Object3D()
+
+// Pre-generate particle data at module scope (avoids React Compiler purity rules)
+const _generateParticleData = () => {
+  const params = new Float32Array(CIRCLE_COUNT * 12)
+  const radii = new Float32Array(CIRCLE_COUNT)
+
+  for (let i = 0; i < CIRCLE_COUNT; i++) {
+    const i12 = i * 12
+
+    params[i12]     = (Math.random() - 0.5) * (isMobile ? 14 : 26)  // baseX
+    params[i12 + 1] = (Math.random() - 0.5) * (isMobile ? 18 : 14)  // baseY (taller on portrait)
+    params[i12 + 2] = (Math.random() - 0.5) * 4   // baseZ
+
+    params[i12 + 3] = 0.2 + Math.random() * 0.5   // freqX
+    params[i12 + 4] = 0.15 + Math.random() * 0.4  // freqY
+    params[i12 + 5] = 0.1 + Math.random() * 0.3   // freqZ
+
+    params[i12 + 6] = Math.random() * Math.PI * 2 // phaseX
+    params[i12 + 7] = Math.random() * Math.PI * 2 // phaseY
+    params[i12 + 8] = Math.random() * Math.PI * 2 // phaseZ
+
+    params[i12 + 9]  = 0.3 + Math.random() * 0.8  // ampX
+    params[i12 + 10] = 0.2 + Math.random() * 0.6  // ampY
+    params[i12 + 11] = 0.1 + Math.random() * 0.3  // ampZ
+
+    radii[i] = generateRadius(0.03, 1.2)
+  }
+
+  return { params, radii }
 }
 
-export const ParticleField = () => {
-  const pointsRef = useRef(null)
+const particleData = _generateParticleData()
 
-  const { positions, params, colors, circleMap } = useMemo(() => {
-    const positions = new Float32Array(PARTICLE_COUNT * 3)
-    const colors = new Float32Array(PARTICLE_COUNT * 3)
-    // 12 params per particle: baseX, baseY, baseZ, freqX, freqY, freqZ, phaseX, phaseY, phaseZ, ampX, ampY, ampZ
-    const params = new Float32Array(PARTICLE_COUNT * 12)
+export const ParticleField = ({ isActiveRef }) => {
+  const meshRef = useRef(null)
+  const { params, radii } = particleData
 
-    const colorYellow = new THREE.Color('#FBFF74')
-    const colorGreen = new THREE.Color('#4C9481')
+  // Set initial matrices (with scale baked in) and colors
+  useEffect(() => {
+    const mesh = meshRef.current
+    if (!mesh) return
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const i3 = i * 3
+    for (let i = 0; i < CIRCLE_COUNT; i++) {
       const i12 = i * 12
+      const r = radii[i]
 
-      // Base positions — spread wide
-      const bx = (Math.random() - 0.5) * 20
-      const by = (Math.random() - 0.5) * 14
-      const bz = (Math.random() - 0.5) * 8
-
-      positions[i3] = bx
-      positions[i3 + 1] = by
-      positions[i3 + 2] = bz
-
-      // Store base + oscillation params
-      params[i12] = bx
-      params[i12 + 1] = by
-      params[i12 + 2] = bz
-      params[i12 + 3] = 0.2 + Math.random() * 0.5  // freqX
-      params[i12 + 4] = 0.15 + Math.random() * 0.4  // freqY
-      params[i12 + 5] = 0.1 + Math.random() * 0.3   // freqZ
-      params[i12 + 6] = Math.random() * Math.PI * 2  // phaseX
-      params[i12 + 7] = Math.random() * Math.PI * 2  // phaseY
-      params[i12 + 8] = Math.random() * Math.PI * 2  // phaseZ
-      params[i12 + 9] = 0.3 + Math.random() * 0.8   // ampX
-      params[i12 + 10] = 0.2 + Math.random() * 0.6  // ampY
-      params[i12 + 11] = 0.15 + Math.random() * 0.4 // ampZ
-
-      // 60% yellow, 40% green
-      const color = Math.random() < 0.6 ? colorYellow : colorGreen
-      colors[i3] = color.r
-      colors[i3 + 1] = color.g
-      colors[i3 + 2] = color.b
+      _obj.position.set(params[i12], params[i12 + 1], params[i12 + 2])
+      _obj.scale.setScalar(r)
+      _obj.updateMatrix()
+      mesh.setMatrixAt(i, _obj.matrix)
+      mesh.setColorAt(i, pickColor())
     }
 
-    return { positions, params, colors, circleMap: createCircleTexture() }
-  }, [])
+    mesh.instanceMatrix.needsUpdate = true
+    mesh.instanceColor.needsUpdate = true
+  }, [params, radii])
 
+  // Oscillation animation — writes directly to instance matrix buffer
+  // Only updates position columns (indices 12,13,14 per 4x4 matrix)
+  // Scale is baked in during init and never changes, so we skip updateMatrix()
   useFrame(({ clock }) => {
-    if (!pointsRef.current) return
-    const posAttr = pointsRef.current.geometry.attributes.position
-    const arr = posAttr.array
-    const t = clock.elapsedTime
+    const mesh = meshRef.current
+    if (!mesh || !isActiveRef?.current) return
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const i3 = i * 3
+    const t = clock.elapsedTime
+    const buf = mesh.instanceMatrix.array
+
+    for (let i = 0; i < CIRCLE_COUNT; i++) {
       const i12 = i * 12
-      arr[i3] = params[i12] + Math.sin(t * params[i12 + 3] + params[i12 + 6]) * params[i12 + 9]
-      arr[i3 + 1] = params[i12 + 1] + Math.cos(t * params[i12 + 4] + params[i12 + 7]) * params[i12 + 10]
-      arr[i3 + 2] = params[i12 + 2] + Math.sin(t * params[i12 + 5] + params[i12 + 8]) * params[i12 + 11]
+      const i16 = i * 16
+
+      // Compute oscillated position
+      const x = params[i12]     + Math.sin(t * params[i12 + 3] + params[i12 + 6]) * params[i12 + 9]
+      const y = params[i12 + 1] + Math.cos(t * params[i12 + 4] + params[i12 + 7]) * params[i12 + 10]
+      const z = params[i12 + 2] + Math.sin(t * params[i12 + 5] + params[i12 + 8]) * params[i12 + 11]
+
+      // Write directly to translation column of the 4x4 column-major matrix
+      buf[i16 + 12] = x
+      buf[i16 + 13] = y
+      buf[i16 + 14] = z
     }
-    posAttr.needsUpdate = true
+
+    mesh.instanceMatrix.needsUpdate = true
   })
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={PARTICLE_COUNT}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={PARTICLE_COUNT}
-          array={colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.08}
-        map={circleMap}
-        transparent
-        opacity={0.7}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        vertexColors
-        sizeAttenuation
-      />
-    </points>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, CIRCLE_COUNT]} frustumCulled={false} renderOrder={-1}>
+      <circleGeometry args={[1, CIRCLE_SEGMENTS]} />
+      <meshBasicMaterial toneMapped={false} depthWrite={false} />
+    </instancedMesh>
   )
 }

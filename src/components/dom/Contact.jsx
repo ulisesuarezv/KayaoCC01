@@ -1,11 +1,30 @@
-import { useRef } from 'react'
+import { useRef, Suspense } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF, Environment } from '@react-three/drei'
 
 const navItems = ['HOME', 'NOSOTROS', 'MANIFESTO', 'CONTACT']
+
+const FooterK = () => {
+  const meshRef = useRef(null)
+  const { nodes, materials } = useGLTF('/models/simbolo_kayaoGOD-transformed.glb')
+
+  useFrame((_, delta) => {
+    if (!meshRef.current) return
+    meshRef.current.rotation.y += Math.min(delta, 0.05) * 0.35
+  })
+
+  return (
+    <mesh
+      ref={meshRef}
+      geometry={nodes.material.geometry}
+      material={materials['Material.001']}
+      rotation={[Math.PI / 2, 0, 0]}
+    />
+  )
+}
 
 export const Contact = () => {
   const sectionRef = useRef(null)
@@ -65,18 +84,23 @@ export const Contact = () => {
       },
     })
 
-    // Parallax marquee (existing behavior)
-    gsap.fromTo(marqueeRef.current, {
-      xPercent: 10,
-    }, {
-      xPercent: -60,
+    // Continuous parallax marquee — infinite loop, paused when off-screen
+    const marqueeTween = gsap.to(marqueeRef.current, {
+      xPercent: -50,
       ease: 'none',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 1,
-      },
+      duration: 12,
+      repeat: -1,
+    })
+    marqueeTween.pause()
+
+    ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: 'top bottom',
+      end: 'bottom top',
+      onEnter: () => marqueeTween.play(),
+      onLeave: () => marqueeTween.pause(),
+      onEnterBack: () => marqueeTween.play(),
+      onLeaveBack: () => marqueeTween.pause(),
     })
 
     // Nav link magnetic quickTo setup
@@ -98,12 +122,22 @@ export const Contact = () => {
         {/* "Kayao Studio" -- clip-path reveal */}
         <h2
           ref={titleRef}
-          className="absolute top-[8%] right-[6%] font-sleigh font-900 text-lime text-[clamp(4rem,10vw,10rem)] leading-[0.85] text-right will-change-transform"
+          className="absolute top-[8%] right-[6%] max-lg:right-[6%] max-lg:left-[5%] font-sleigh font-900 text-lime text-[clamp(1.5rem,8vw,10rem)] leading-[0.85] tracking-[-0.05em] text-right will-change-transform"
         >
           Kayao
           <br />
           Studio
         </h2>
+
+        {/* Instagram link -- aligned with title */}
+        <a
+          href="https://www.instagram.com/kayao.studio"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-[8%] right-[6%] font-sleigh font-200 text-lime text-[clamp(0.65rem,1vw,1rem)] max-sm:text-[0.85rem] tracking-[0.15em] uppercase hover:text-white transition-colors duration-300"
+        >
+          IG | X
+        </a>
 
         {/* Nav links -- magnetic hover */}
         <nav ref={navRef} className="absolute bottom-[8%] left-[5%] flex flex-col gap-2">
@@ -112,7 +146,7 @@ export const Contact = () => {
               key={item}
               ref={(el) => (linkRefs.current[i] = el)}
               href={`#${item.toLowerCase()}`}
-              className="font-sleigh font-700 text-lime/70 text-[clamp(0.8rem,1.2vw,1.1rem)] tracking-[0.15em] uppercase hover:text-lime transition-colors duration-300 inline-block will-change-transform"
+              className="font-sleigh font-700 text-lime/70 text-[clamp(0.8rem,1.2vw,1.1rem)] max-sm:text-[0.9rem] tracking-[0.15em] uppercase hover:text-lime transition-colors duration-300 inline-block will-change-transform"
               onMouseMove={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect()
                 const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
@@ -135,18 +169,33 @@ export const Contact = () => {
       <div className="relative z-10 shrink-0 overflow-visible bg-lime">
         <p
           ref={marqueeRef}
-          className="font-sleigh font-900 text-dark text-[clamp(3rem,7vw,7rem)] leading-none whitespace-nowrap select-none pointer-events-none will-change-transform"
+          className="font-sleigh font-900 text-dark text-[clamp(1.5rem,7vw,7rem)] leading-none whitespace-nowrap select-none pointer-events-none will-change-transform"
         >
           development. | UX&UI | webGL. | design | web&app | development. | UX&UI | webGL. | design | web&app
         </p>
       </div>
 
-      {/* Lower zone -- lime, scaleY reveal */}
+      {/* Lower zone -- lime, scaleY reveal + 3D K */}
       <div
         ref={lowerRef}
-        className="relative bg-lime flex-1"
+        className="relative bg-lime flex-1 overflow-hidden"
         style={{ transformOrigin: 'bottom' }}
-      />
+      >
+        <Canvas
+          gl={{ alpha: true, antialias: window.devicePixelRatio < 2 }}
+          dpr={[1, 1.5]}
+          camera={{ position: [0, 0, window.innerWidth < 1024 ? 5.5 : 4.5], fov: 45 }}
+          className="!absolute inset-0"
+        >
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1} />
+          <directionalLight position={[-3, -2, 4]} intensity={0.3} />
+          <Environment preset="city" environmentIntensity={0.2} resolution={64} />
+          <Suspense fallback={null}>
+            <FooterK />
+          </Suspense>
+        </Canvas>
+      </div>
     </section>
   )
 }

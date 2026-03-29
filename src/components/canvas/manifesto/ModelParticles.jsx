@@ -1,177 +1,153 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { emissionQueue } from './particleEvents'
+import { COLORS, pickColor, generateRadius } from './particleUtils'
 
-const POOL_SIZE = 5000
+const isMobile = window.innerWidth < 1024
+const POOL_SIZE = isMobile ? 80 : 200
 const GRAVITY = -1.5
 const DAMPING = 0.98
 const MIN_LIFE = 1.0
 const MAX_LIFE = 2.2
+const CIRCLE_SEGMENTS = isMobile ? 16 : 24
 
-// Generate a bright spark texture
-const createSparkTexture = () => {
-  const size = 32
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext('2d')
-  const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16)
-  gradient.addColorStop(0, 'rgba(255,255,255,1)')
-  gradient.addColorStop(0.3, 'rgba(255,255,200,0.8)')
-  gradient.addColorStop(1, 'rgba(255,255,100,0)')
-  ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, size, size)
-  return new THREE.CanvasTexture(canvas)
-}
+// Scratch object reused every frame
+const _obj = new THREE.Object3D()
 
-export const ModelParticles = () => {
-  const pointsRef = useRef(null)
+export const ModelParticles = ({ isActiveRef }) => {
+  const meshRef = useRef(null)
   const nextSlot = useRef(0)
-  const particleData = useRef(null)
+  const liveCount = useRef(0)
+  // Per-particle: vx, vy, vz, life, maxLife, radius, px, py, pz
+  const particleData = useRef(new Float32Array(POOL_SIZE * 9))
 
-  const { positions, colors, alphas, sparkMap } = useMemo(() => {
-    const positions = new Float32Array(POOL_SIZE * 3)
-    const colors = new Float32Array(POOL_SIZE * 3)
-    const alphas = new Float32Array(POOL_SIZE)
+  // Initialize all instances as hidden
+  useEffect(() => {
+    const mesh = meshRef.current
+    if (!mesh) return
+
+    _obj.scale.setScalar(0)
+    _obj.position.set(0, -100, 0)
+    _obj.updateMatrix()
 
     for (let i = 0; i < POOL_SIZE; i++) {
-      positions[i * 3] = 0
-      positions[i * 3 + 1] = -100
-      positions[i * 3 + 2] = 0
-      alphas[i] = 0
+      mesh.setMatrixAt(i, _obj.matrix)
+      mesh.setColorAt(i, COLORS[0].color)
     }
 
-    return { positions, colors, alphas, sparkMap: createSparkTexture() }
-  }, [])
-
-  useMemo(() => {
-    particleData.current = new Float32Array(POOL_SIZE * 5) // vx, vy, vz, life, maxLife
+    mesh.instanceMatrix.needsUpdate = true
+    mesh.instanceColor.needsUpdate = true
   }, [])
 
   useFrame((_, delta) => {
-    if (!pointsRef.current || !particleData.current) return
-    const posArr = pointsRef.current.geometry.attributes.position.array
-    const colArr = pointsRef.current.geometry.attributes.color.array
-    const alphaArr = pointsRef.current.geometry.attributes.alpha.array
+    const mesh = meshRef.current
+    if (!mesh || !isActiveRef?.current) return
+
     const pd = particleData.current
     const dt = Math.min(delta, 0.05)
+    let colorDirty = false
+    const queueLen = emissionQueue.length
 
-    // Consume collision events from queue
-    while (emissionQueue.length > 0) {
-      const event = emissionQueue.shift()
-      const burstCount = 15 + Math.floor(Math.random() * 20) // 15-35 particles per collision
+    // Early exit: nothing to do
+    if (liveCount.current === 0 && queueLen === 0) return
+
+    // Consume collision events
+    for (let q = 0; q < queueLen; q++) {
+      const event = emissionQueue[q]
+      const burstCount = 5 + Math.floor(Math.random() * 8) // 5-12 per collision
 
       for (let j = 0; j < burstCount; j++) {
         const idx = nextSlot.current
         nextSlot.current = (nextSlot.current + 1) % POOL_SIZE
-        const i3 = idx * 3
-        const i5 = idx * 5
+        const i9 = idx * 9
 
-        posArr[i3] = event.x + (Math.random() - 0.5) * 0.2
-        posArr[i3 + 1] = event.y + (Math.random() - 0.5) * 0.2
-        posArr[i3 + 2] = event.z + (Math.random() - 0.5) * 0.2
+        // If overwriting a live particle, don't double-count
+        if (pd[i9 + 4] > 0 && pd[i9 + 3] < pd[i9 + 4]) {
+          // Replacing a live particle — no net change to liveCount
+        } else {
+          liveCount.current++
+        }
 
-        // Spherical random velocity (radial from emission point)
+        const px = event.x + (Math.random() - 0.5) * 0.2
+        const py = event.y + (Math.random() - 0.5) * 0.2
+        const pz = event.z + (Math.random() - 0.5) * 0.2
+
+        // Spherical random velocity
         const theta = Math.random() * Math.PI * 2
         const phi = Math.acos(2 * Math.random() - 1)
         const speed = 1.5 + Math.random() * 3.0
-        pd[i5] = Math.sin(phi) * Math.cos(theta) * speed
-        pd[i5 + 1] = Math.sin(phi) * Math.sin(theta) * speed
-        pd[i5 + 2] = Math.cos(phi) * speed
-        pd[i5 + 3] = 0
-        pd[i5 + 4] = MIN_LIFE + Math.random() * (MAX_LIFE - MIN_LIFE)
 
-        // Color: bright yellow-white sparks
-        const warmth = 0.5 + Math.random() * 0.5
-        colArr[i3] = 1.0
-        colArr[i3 + 1] = 0.95 * warmth + 0.05
-        colArr[i3 + 2] = 0.3 * warmth
+        pd[i9]     = Math.sin(phi) * Math.cos(theta) * speed // vx
+        pd[i9 + 1] = Math.sin(phi) * Math.sin(theta) * speed // vy
+        pd[i9 + 2] = Math.cos(phi) * speed                   // vz
+        pd[i9 + 3] = 0                                       // life
+        pd[i9 + 4] = MIN_LIFE + Math.random() * (MAX_LIFE - MIN_LIFE) // maxLife
+        pd[i9 + 5] = generateRadius(0.04, 0.25)              // radius
+        pd[i9 + 6] = px                                      // posX
+        pd[i9 + 7] = py                                      // posY
+        pd[i9 + 8] = pz                                      // posZ
 
-        alphaArr[idx] = 1.0
+        _obj.position.set(px, py, pz)
+        _obj.scale.setScalar(pd[i9 + 5])
+        _obj.updateMatrix()
+        mesh.setMatrixAt(idx, _obj.matrix)
+
+        mesh.setColorAt(idx, pickColor())
+        colorDirty = true
       }
     }
+    if (queueLen > 0) emissionQueue.length = 0
 
-    // Update all particles
+    // Update live particles
     for (let i = 0; i < POOL_SIZE; i++) {
-      const i3 = i * 3
-      const i5 = i * 5
+      const i9 = i * 9
 
-      if (alphaArr[i] <= 0) continue
+      // Skip never-emitted or already dead
+      if (pd[i9 + 4] === 0) continue
+      if (pd[i9 + 3] >= pd[i9 + 4]) continue
 
-      pd[i5 + 3] += dt
-      const lifeRatio = pd[i5 + 3] / pd[i5 + 4]
+      pd[i9 + 3] += dt // life
+      const lifeRatio = pd[i9 + 3] / pd[i9 + 4]
 
       if (lifeRatio >= 1) {
-        alphaArr[i] = 0
-        posArr[i3 + 1] = -100
+        _obj.scale.setScalar(0)
+        _obj.position.set(0, -100, 0)
+        _obj.updateMatrix()
+        mesh.setMatrixAt(i, _obj.matrix)
+        liveCount.current--
         continue
       }
 
       // Gravity + damping
-      pd[i5 + 1] += GRAVITY * dt
-      pd[i5] *= DAMPING
-      pd[i5 + 1] *= DAMPING
-      pd[i5 + 2] *= DAMPING
+      pd[i9 + 1] += GRAVITY * dt
+      pd[i9]     *= DAMPING
+      pd[i9 + 1] *= DAMPING
+      pd[i9 + 2] *= DAMPING
 
-      posArr[i3] += pd[i5] * dt
-      posArr[i3 + 1] += pd[i5 + 1] * dt
-      posArr[i3 + 2] += pd[i5 + 2] * dt
+      // Update position
+      pd[i9 + 6] += pd[i9] * dt
+      pd[i9 + 7] += pd[i9 + 1] * dt
+      pd[i9 + 8] += pd[i9 + 2] * dt
 
-      // Fade out in last 50% of life
-      alphaArr[i] = lifeRatio > 0.5 ? 1.0 - ((lifeRatio - 0.5) / 0.5) : 1.0
+      // Fade out via scale in last 50% of life
+      const baseRadius = pd[i9 + 5]
+      const fade = lifeRatio > 0.5 ? 1.0 - ((lifeRatio - 0.5) / 0.5) : 1.0
+
+      _obj.position.set(pd[i9 + 6], pd[i9 + 7], pd[i9 + 8])
+      _obj.scale.setScalar(baseRadius * fade)
+      _obj.updateMatrix()
+      mesh.setMatrixAt(i, _obj.matrix)
     }
 
-    pointsRef.current.geometry.attributes.position.needsUpdate = true
-    pointsRef.current.geometry.attributes.color.needsUpdate = true
-    pointsRef.current.geometry.attributes.alpha.needsUpdate = true
+    mesh.instanceMatrix.needsUpdate = true
+    if (colorDirty) mesh.instanceColor.needsUpdate = true
   })
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={POOL_SIZE}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={POOL_SIZE}
-          array={colors}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-alpha"
-          count={POOL_SIZE}
-          array={alphas}
-          itemSize={1}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.1}
-        map={sparkMap}
-        transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        vertexColors
-        sizeAttenuation
-        onBeforeCompile={(shader) => {
-          shader.vertexShader = shader.vertexShader.replace(
-            'void main() {',
-            'attribute float alpha;\nvarying float vAlpha;\nvoid main() {\nvAlpha = alpha;'
-          )
-          shader.fragmentShader = shader.fragmentShader.replace(
-            'void main() {',
-            'varying float vAlpha;\nvoid main() {'
-          )
-          shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <premultiplied_alpha_fragment>',
-            'gl_FragColor.a *= vAlpha;\n#include <premultiplied_alpha_fragment>'
-          )
-        }}
-      />
-    </points>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, POOL_SIZE]} frustumCulled={false}>
+      <circleGeometry args={[1, CIRCLE_SEGMENTS]} />
+      <meshBasicMaterial toneMapped={false} />
+    </instancedMesh>
   )
 }

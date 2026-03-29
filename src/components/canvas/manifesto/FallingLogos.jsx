@@ -1,25 +1,28 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { RigidBody, CuboidCollider } from '@react-three/rapier'
 import { emissionQueue } from './particleEvents'
 
-const LOGO_COUNT = 40
+const isMobile = window.innerWidth < 1024
+const LOGO_COUNT = isMobile ? 16 : 40
+const SPREAD_X = isMobile ? 12 : 28
+const WALL_X = isMobile ? 8 : 16
 
 const generateSpawns = (count) => {
   const spawns = []
   for (let i = 0; i < count; i++) {
     spawns.push({
       position: [
-        (Math.random() - 0.5) * 28,       // x: -14 to 14 (full viewport width)
-        5 + Math.random() * 18,            // y: 5 to 23 (staggered drop)
-        (Math.random() - 0.5) * 2,         // z: -1 to 1
+        (Math.random() - 0.5) * SPREAD_X,
+        5 + Math.random() * 18,
+        (Math.random() - 0.5) * 2,
       ],
       rotation: [
         Math.random() * Math.PI * 2,
         Math.random() * Math.PI * 2,
         Math.random() * Math.PI * 2,
       ],
-      scale: 0.4 + Math.random() * 0.5,   // 0.4 to 0.9
+      scale: 0.4 + Math.random() * 0.5,
     })
   }
   return spawns
@@ -27,6 +30,18 @@ const generateSpawns = (count) => {
 
 const LogoInstance = ({ spawn, scene }) => {
   const cloned = useMemo(() => scene.clone(true), [scene])
+
+  // Dispose cloned geometries/materials on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      cloned.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose()
+          child.material?.dispose()
+        }
+      })
+    }
+  }, [cloned])
 
   const handleCollision = (e) => {
     const contact = e.manifold?.solverContactPoint?.(0)
@@ -59,9 +74,10 @@ const LogoInstance = ({ spawn, scene }) => {
       friction={0.2}
       linearDamping={0.08}
       angularDamping={0.15}
-      colliders="hull"
+      colliders={false}
       onCollisionEnter={handleCollision}
     >
+      <CuboidCollider args={[0.5 * spawn.scale, 0.5 * spawn.scale, 0.15 * spawn.scale]} />
       <primitive object={cloned} scale={spawn.scale} />
     </RigidBody>
   )
@@ -75,11 +91,11 @@ const Walls = () => (
       <CuboidCollider args={[20, 0.5, 5]} />
     </RigidBody>
     {/* Left wall */}
-    <RigidBody type="fixed" position={[-16, 5, 0]} restitution={0.85}>
+    <RigidBody type="fixed" position={[-WALL_X, 5, 0]} restitution={0.85}>
       <CuboidCollider args={[0.5, 20, 5]} />
     </RigidBody>
     {/* Right wall */}
-    <RigidBody type="fixed" position={[16, 5, 0]} restitution={0.85}>
+    <RigidBody type="fixed" position={[WALL_X, 5, 0]} restitution={0.85}>
       <CuboidCollider args={[0.5, 20, 5]} />
     </RigidBody>
     {/* Front wall */}

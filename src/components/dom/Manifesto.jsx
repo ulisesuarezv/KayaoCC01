@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useCallback, lazy, Suspense } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ManifestoScene } from '../canvas/ManifestoScene'
 
-gsap.registerPlugin(ScrollTrigger)
+// Lazy load ManifestoScene — defers Three.js, Rapier WASM, and particle code
+const ManifestoScene = lazy(() => import('../canvas/ManifestoScene'))
 
 export const Manifesto = () => {
   const sectionRef = useRef(null)
@@ -13,7 +13,14 @@ export const Manifesto = () => {
   const creativeRef = useRef(null)
   const titleRef = useRef(null)
   const bigTextRef = useRef(null)
-  const [isPhysicsActive, setIsPhysicsActive] = useState(false)
+  // Ref for particle gating (read in useFrame — no re-renders)
+  const isActiveRef = useRef(false)
+  // State only for Physics paused prop (toggles on boundary crossing only)
+  const [physicsActive, setPhysicsActive] = useState(false)
+  const activateSection = useCallback((active) => {
+    isActiveRef.current = active
+    setPhysicsActive(active)
+  }, [])
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -22,16 +29,18 @@ export const Manifesto = () => {
         start: 'top top',
         end: 'bottom bottom',
         pin: pinRef.current,
-        scrub: 1,
+        scrub: 0.4,
+        // onUpdate only writes to ref — no setState, no re-render
         onUpdate: (self) => {
-          // Activate physics when section enters viewport
           if (self.progress > 0.02) {
-            setIsPhysicsActive(true)
+            isActiveRef.current = true
           }
         },
-        onLeave: () => setIsPhysicsActive(false),
-        onLeaveBack: () => setIsPhysicsActive(false),
-        onEnter: () => setIsPhysicsActive(true),
+        // Boundary events toggle both ref + state (fires once per crossing)
+        onLeave: () => activateSection(false),
+        onLeaveBack: () => activateSection(false),
+        onEnter: () => activateSection(true),
+        onEnterBack: () => activateSection(true),
       },
     })
 
@@ -80,13 +89,15 @@ export const Manifesto = () => {
 
         {/* 3D Canvas — physics logos + particles */}
         <div className="absolute inset-0 z-0">
-          <ManifestoScene isActive={isPhysicsActive} />
+          <Suspense fallback={null}>
+            <ManifestoScene isActiveRef={isActiveRef} physicsActive={physicsActive} />
+          </Suspense>
         </div>
 
         {/* "kayao" left side -- horizontal orientation */}
         <p
           ref={kayaoRef}
-          className="absolute top-[35%] left-[3%] font-sleigh font-200 text-white text-[clamp(3rem,6vw,6rem)] leading-none z-10 pointer-events-none"
+          className="absolute top-[35%] left-[3%] max-lg:left-[5%] font-sleigh font-200 text-white text-[clamp(1.5rem,6vw,6rem)] leading-none z-10 pointer-events-none"
         >
           kayao
         </p>
@@ -102,13 +113,13 @@ export const Manifesto = () => {
         </p>
 
         {/* "nuestro manifesto" -- hidden initially, revealed on scroll */}
-        <div ref={titleRef} className="absolute top-[8%] right-[5%] max-w-[420px] opacity-0 z-10 pointer-events-none">
+        <div ref={titleRef} className="absolute top-[8%] right-[5%] max-lg:right-[4%] max-w-[420px] max-lg:max-w-[80vw] opacity-0 z-10 pointer-events-none">
           <h2 className="font-sleigh font-900 text-white text-[clamp(2rem,4vw,4rem)] leading-[0.9] mb-6">
             nuestro
             <br />
             manifesto
           </h2>
-          <p className="font-sleigh font-200 text-white/60 text-[clamp(0.75rem,1vw,1rem)] leading-relaxed">
+          <p className="font-sleigh font-200 text-lime text-[clamp(0.75rem,1vw,1rem)] leading-relaxed">
             Kayao desarrolla web&apps inmersivas mediante experiencias
             personalizadas que explotan tu marca.
           </p>
@@ -117,7 +128,7 @@ export const Manifesto = () => {
         {/* Big centered statement -- hidden initially */}
         <p
           ref={bigTextRef}
-          className="absolute top-[28%] left-[8%] right-[8%] font-sleigh font-900 text-white text-[clamp(2rem,4.5vw,4.5rem)] leading-[1.15] text-center opacity-0 z-10 pointer-events-none"
+          className="absolute top-[28%] left-[8%] right-[8%] max-lg:left-[4%] max-lg:right-[4%] font-sleigh font-900 text-white text-[clamp(1.2rem,4.5vw,4.5rem)] leading-[1.15] text-center opacity-0 z-10 pointer-events-none"
         >
           Diseño, interacción y tecnología que convierten. Creamos experiencias
           digitales elegantes y fluidas que transmiten calidad, conectan con tu

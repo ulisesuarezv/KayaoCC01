@@ -25,6 +25,7 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 body {
@@ -32,6 +33,7 @@ body {
   color: #FBFF74;
   font-family: var(--font-sleigh);
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 ::selection {

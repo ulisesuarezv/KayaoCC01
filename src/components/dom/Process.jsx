@@ -3,13 +3,11 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-gsap.registerPlugin(ScrollTrigger)
-
 const steps = [
-  { num: '01', title: 'Estudio & Research', desc: 'Construimos entornos tridimensionales que viven en el navegador. Tus productos se pueden explorar, rotar, descubrir, en tiempo real, sin plugins, sin fricción, directamente en la web.' },
-  { num: '02', title: 'Diseno & Propuesta', desc: 'Conceptualizamos la experiencia visual y la arquitectura de interaccion.' },
-  { num: '03', title: 'Desarrollo Creativo', desc: 'Construimos con WebGL, animaciones y codigo a medida.' },
-  { num: '04', title: 'Lanzamiento', desc: 'Optimizamos, testeamos y lanzamos al mundo.' },
+  { num: '01', title: 'Estudio&Research', desc: 'Analizamos tu negocio, tu público y tus objetivos para entender qué necesitas realmente. No disenamos por estética, disenamos con intención: crear una experiencia que conecte con tus clientes y funcione desde el primer momento.' },
+  { num: '02', title: 'Diseno&Propuesta', desc: 'Transformamos la idea en una propuesta visual clara y atractiva. Disenamos una web moderna, intuitiva y alineada con tu marca, cuidando cada detalle para que destaque y genere confianza desde el primer vistazo.' },
+  { num: '03', title: 'Desarrollo & testing', desc: 'Convertimos el diseno en una web real, rápida y funcional. Probamos cada detalle para asegurarnos de que todo funciona perfectamente en cualquier dispositivo, garantizando una experiencia fluida para tus usuarios.' },
+  { num: '04', title: 'Lanzamiento & mantenimiento Web', desc: 'Publicamos tu web y la dejamos lista para funcionar desde el primer día. Además, te acompanamos con mantenimiento y mejoras continuas para que tu web crezca contigo y siga dando resultados.' },
 ]
 
 export const Process = () => {
@@ -33,7 +31,7 @@ export const Process = () => {
         start: 'top top',
         end: 'bottom bottom',
         pin: pinRef.current,
-        scrub: 1,
+        scrub: 0.4,
       },
     })
 
@@ -47,7 +45,7 @@ export const Process = () => {
         trigger: sectionRef.current,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 1,
+        scrub: 0.4,
       },
     })
 
@@ -70,10 +68,10 @@ export const Process = () => {
         scrollTrigger: {
           trigger: circle,
           containerAnimation: horizontalTween,
-          start: 'left 75%',
-          end: 'left 40%',
+          start: 'left 80%',
+          end: 'right 80%',
           scrub: false,
-          toggleActions: 'play reverse play reverse',
+          toggleActions: 'play none none reverse',
         },
       })
 
@@ -83,14 +81,14 @@ export const Process = () => {
         ease: 'power3.out',
       })
       circleScales.current[i] = gsap.quickTo(circle, 'scale', {
-        duration: 0.3,
-        ease: 'power2.out',
+        duration: 0.5,
+        ease: 'power3.out',
       })
     }
   }, { scope: sectionRef })
 
   const handleCircleEnter = (i) => {
-    circleScales.current[i]?.(1.04)
+    circleScales.current[i]?.(0.6)
   }
 
   const handleCircleLeave = (i) => {
@@ -116,8 +114,7 @@ export const Process = () => {
         {/* "PROCESO" vertical giant -- left edge, parallax */}
         <p
           ref={procesoRef}
-          className="absolute top-[50%] left-[0%] -translate-y-1/2 font-sleigh font-900 text-dark text-[clamp(8rem,18vw,16rem)] leading-[0.65] tracking-[-0.08em] select-none pointer-events-none z-10 will-change-transform"
-          style={{ writingMode: 'vertical-rl' }}
+          className="absolute top-[50%] left-[0%] -translate-y-1/2 max-lg:top-[2vh] max-lg:left-[50%] max-lg:-translate-x-1/2 max-lg:translate-y-0 font-sleigh font-900 text-dark text-[clamp(8rem,18vw,16rem)] max-lg:text-[clamp(3rem,8vw,5rem)] leading-[0.65] tracking-[-0.08em] select-none pointer-events-none z-10 [writing-mode:vertical-rl] max-lg:[writing-mode:horizontal-tb] will-change-transform"
         >
           PROCESO
         </p>
@@ -125,12 +122,12 @@ export const Process = () => {
         {/* Horizontal track -- circles slide left on scroll */}
         <div
           ref={trackRef}
-          className="absolute top-0 left-[calc(100vw-110vh)] h-full flex items-center gap-[5vw] will-change-transform"
+          className="absolute top-0 left-[calc(100vw-110vh)] max-lg:left-[10vw] h-full flex items-center gap-[5vw] max-lg:gap-[8vw] will-change-transform"
         >
           {steps.map((step, i) => (
             <div
               key={step.num}
-              className="relative shrink-0 h-[110%] aspect-square rounded-full bg-teal cursor-pointer will-change-transform"
+              className="relative shrink-0 h-[110%] max-lg:h-auto max-lg:w-[min(85vw,85vh)] aspect-square rounded-full bg-teal cursor-pointer will-change-transform"
               onMouseEnter={() => handleCircleEnter(i)}
               onMouseLeave={() => handleCircleLeave(i)}
               onMouseMove={(e) => handleCircleMove(e, i)}
@@ -138,7 +135,7 @@ export const Process = () => {
               {/* Number -- top area */}
               <span
                 data-animate
-                className="absolute top-[8%] left-[50%] -translate-x-1/3 font-sleigh font-900 text-dark text-[clamp(6rem,14vw,14rem)] leading-none select-none"
+                className="absolute top-[8%] left-[50%] -translate-x-1/3 font-sleigh font-900 text-white text-[clamp(6rem,14vw,14rem)] max-lg:text-[clamp(3.5rem,14vw,6rem)] leading-none select-none"
               >
                 {step.num}.
               </span>
@@ -146,7 +143,7 @@ export const Process = () => {
               {/* Title -- left of number */}
               <h3
                 data-animate
-                className="absolute top-[22%] left-[12%] font-sleigh font-700 text-dark text-[clamp(1rem,2vw,2rem)] leading-tight"
+                className="absolute top-[22%] left-[12%] max-lg:left-[10%] font-sleigh font-700 text-dark text-[clamp(0.9rem,2vw,2rem)] leading-tight"
               >
                 {step.title}
               </h3>
@@ -154,7 +151,7 @@ export const Process = () => {
               {/* Description -- center-left */}
               <p
                 data-animate
-                className="absolute top-[52%] left-[15%] max-w-[55%] font-sleigh font-200 text-dark/80 text-[clamp(0.7rem,1vw,1rem)] leading-relaxed"
+                className="absolute top-[52%] left-[15%] max-lg:left-[10%] max-w-[55%] max-lg:max-w-[70%] font-sleigh font-200 text-dark/80 text-[clamp(0.75rem,1.4vw,1.35rem)] leading-relaxed"
               >
                 {step.desc}
               </p>
