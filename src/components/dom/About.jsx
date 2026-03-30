@@ -7,10 +7,10 @@ import { useMagnetic } from '../../hooks/useMagnetic'
 import { useAppStore } from '../../stores/useAppStore'
 
 const services = [
-  { num: 1, label: 'webGL', statement: 'Entornos 3D para brindarte la mejor experiencia' },
-  { num: 2, label: 'Full Stack', statement: 'Desarrollamos soluciones integrales y escalables' },
-  { num: 3, label: 'UX/UI', statement: 'Experiencias que cautiven a tus clientes' },
-  { num: 4, label: 'SEO', statement: 'Mejoramos tu presencia en linea, y aumentamos el trafico' },
+  { num: 1, label: 'webGL', statement: 'Experiencias inmersivas en WebGL para marcas que quieren diferenciarse' },
+  { num: 2, label: 'Full Stack', statement: 'Desarrollo Full Stack para construir software sólido y escalable' },
+  { num: 3, label: 'Motion Design', statement: 'Donde la ingenieria conoce la creatividad. Animaciones que elevan la percepción y la interacción del producto' },
+  { num: 4, label: 'Design systems', statement: 'Sistemas de diseño que alinean marca, producto y equipo con bibliotecas que unifican diseño y desarrollo' },
 ]
 
 export const About = () => {
@@ -181,7 +181,7 @@ export const About = () => {
       {/* Giant statement */}
       <p
         ref={statementRef}
-        className="absolute left-[5%] right-[3%] top-[48%] max-lg:top-[45%] max-lg:left-[3%] max-lg:right-[3%] font-sleigh font-900 text-dark text-[clamp(1.1rem,3.2vw,5.5rem)] leading-[1.05] text-right will-change-transform"
+        className="absolute left-[32%] right-[3%] top-[48%] max-lg:top-[45%] max-lg:left-[3%] max-lg:right-[3%] font-sleigh font-900 text-dark text-[clamp(1.1rem,3.2vw,5.5rem)] leading-[1.05] text-right will-change-transform"
       >
         {services[0].statement}
       </p>

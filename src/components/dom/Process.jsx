@@ -4,10 +4,10 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const steps = [
-  { num: '01', title: 'Estudio&Research', desc: 'Analizamos tu negocio, tu público y tus objetivos para entender qué necesitas realmente. No disenamos por estética, disenamos con intención: crear una experiencia que conecte con tus clientes y funcione desde el primer momento.' },
-  { num: '02', title: 'Diseno&Propuesta', desc: 'Transformamos la idea en una propuesta visual clara y atractiva. Disenamos una web moderna, intuitiva y alineada con tu marca, cuidando cada detalle para que destaque y genere confianza desde el primer vistazo.' },
-  { num: '03', title: 'Desarrollo & testing', desc: 'Convertimos el diseno en una web real, rápida y funcional. Probamos cada detalle para asegurarnos de que todo funciona perfectamente en cualquier dispositivo, garantizando una experiencia fluida para tus usuarios.' },
-  { num: '04', title: 'Lanzamiento & mantenimiento Web', desc: 'Publicamos tu web y la dejamos lista para funcionar desde el primer día. Además, te acompanamos con mantenimiento y mejoras continuas para que tu web crezca contigo y siga dando resultados.' },
+  { num: '01', title: 'Estudio&Research', desc: 'Analizamos tu negocio, tu público y tus objetivos para entender qué necesitas realmente. No diseñamos solo por estética: diseñamos con intención estratégica para crear experiencias que conectan con tus clientes desde la primera interacción.' },
+  { num: '02', title: 'Diseno&Propuesta', desc: 'Transformamos la estrategia en una propuesta visual clara y coherente con tu marca. Diseñamos una experiencia moderna e intuitiva, cuidando cada detalle para que destaque.' },
+  { num: '03', title: 'Desarrollo & testing', desc: 'Convertimos el diseño en una experiencia digital real, rápida y funcional. Probamos cada detalle para garantizar rendimiento, compatibilidad y una experiencia fluida en cualquier dispositivo.' },
+  { num: '04', title: 'Lanzamiento & mantenimiento Web', desc: 'Lanzamos tu web y la dejamos lista para funcionar desde el primer día. Además, te acompañamos con mantenimiento y mejoras continuas para que evolucione contigo y siga generando resultados a largo plazo.' },
 ]
 
 export const Process = () => {

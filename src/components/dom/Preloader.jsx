@@ -246,7 +246,7 @@ export const Preloader = () => {
         </p>
         <p
           ref={webRef}
-          className="font-sleigh font-300 text-white text-[clamp(0.875rem,1.5vw,1.5rem)] leading-snug opacity-0"
+          className="font-sleigh font-300 text-white text-[clamp(0.65rem,1vw,1rem)] leading-snug opacity-0"
         >
           Beta v0.2
         </p>

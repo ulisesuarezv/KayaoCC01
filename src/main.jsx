@@ -6,4 +6,8 @@ import { App } from './App.jsx'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Force scroll to top on every page load/refresh
+history.scrollRestoration = 'manual'
+window.scrollTo(0, 0)
+
 createRoot(document.getElementById('root')).render(<App />)
