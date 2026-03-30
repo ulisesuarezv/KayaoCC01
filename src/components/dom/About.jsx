@@ -161,17 +161,17 @@ export const About = () => {
             circleRef.current = el
             circleInnerRef.current = el
           }}
-          className="w-[clamp(180px,25vw,320px)] max-lg:w-[clamp(120px,30vw,180px)] aspect-square rounded-full bg-teal flex flex-col items-center justify-center will-change-transform cursor-pointer"
+          className="w-[clamp(180px,25vw,320px)] max-lg:w-[clamp(160px,42vw,220px)] aspect-square rounded-full bg-teal flex flex-col items-center justify-center will-change-transform cursor-pointer"
         >
           <span
             ref={circleNumRef}
-            className="font-sleigh font-900 text-dark text-[clamp(2.5rem,5vw,5.5rem)] leading-none"
+            className="font-sleigh font-900 text-dark text-[clamp(2.5rem,5vw,5.5rem)] max-lg:text-[clamp(3rem,8vw,4.5rem)] leading-none"
           >
             {services[0].num}
           </span>
           <span
             ref={circleLabelRef}
-            className="font-sleigh font-300 text-dark/80 text-[clamp(0.65rem,1vw,0.9rem)] tracking-[0.2em] uppercase mt-1"
+            className="font-sleigh font-300 text-dark/80 text-[clamp(0.65rem,1vw,0.9rem)] max-lg:text-[clamp(0.7rem,2.5vw,1rem)] tracking-[0.2em] uppercase mt-1"
           >
             {services[0].label}
           </span>
@@ -189,19 +189,19 @@ export const About = () => {
       {/* Right block -- studio title + tagline */}
       <div ref={titleRef} className="absolute right-[6%] top-[22%] w-[48%] max-lg:w-[50%] max-lg:top-[12%] max-lg:right-[4%] flex flex-col will-change-transform">
         <div className="text-right">
-          <h2 className="font-sleigh text-dark text-[clamp(1.4rem,5.5vw,6rem)] leading-[0.9]">
+          <h2 className="font-sleigh text-dark text-[clamp(1.4rem,5.5vw,6rem)] max-lg:text-[clamp(2.2rem,10vw,4rem)] leading-[0.9]">
             <span style={{ fontWeight: 800, letterSpacing: '-0.08em' }}>Kayao</span>
             <br />
             <span className="font-900">STUDIO</span>
           </h2>
-          <p className="font-sleigh font-300 text-teal text-[clamp(0.8rem,1.1vw,1.1rem)] mt-3 leading-relaxed">
+          <p className="font-sleigh font-300 text-teal text-[clamp(0.8rem,1.1vw,1.1rem)] max-lg:text-[clamp(0.75rem,2.8vw,1rem)] mt-3 leading-relaxed">
             Transformamos la estética en estrategia.
           </p>
         </div>
       </div>
 
       {/* Services list — ALL services, active highlighted */}
-      <div ref={servicesRef} className="absolute right-[3%] top-[70%] max-lg:top-[66%] w-[55%] max-lg:w-[92%] max-lg:right-[4%]">
+      <div ref={servicesRef} className="absolute right-[3%] top-[70%] max-lg:top-[66%] w-[55%] max-lg:w-[92%] max-lg:left-[4%] max-lg:right-[4%]">
         {services.map((s, i) => (
           <div
             key={s.num}
@@ -211,11 +211,11 @@ export const About = () => {
             style={{ opacity: i === 0 ? 1 : 0.4, transition: 'opacity 0.2s' }}
           >
             <div className="w-full h-px bg-dark/20" />
-            <div className="flex items-baseline justify-end gap-4 py-3">
-              <span className="font-sleigh font-300 text-dark/60 text-[clamp(0.7rem,1vw,0.9rem)] tracking-[0.2em] uppercase">
+            <div className="flex items-baseline justify-end gap-4 py-3 max-lg:py-5">
+              <span className="font-sleigh font-300 text-dark/60 text-[clamp(0.7rem,1vw,0.9rem)] max-lg:text-[clamp(0.75rem,2.5vw,1rem)] tracking-[0.2em] uppercase">
                 {s.label}
               </span>
-              <span className="font-sleigh font-900 text-dark text-[clamp(1.2rem,2vw,2rem)]">
+              <span className="font-sleigh font-900 text-dark text-[clamp(1.2rem,2vw,2rem)] max-lg:text-[clamp(1.4rem,5vw,2.2rem)]">
                 {s.num}
               </span>
             </div>

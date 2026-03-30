@@ -17,6 +17,7 @@ export const useLenis = () => {
     })
 
     lenisRef.current = lenis
+    useAppStore.getState().setLenis(lenis)
 
     gsap.ticker.lagSmoothing(0)
 
@@ -35,6 +36,7 @@ export const useLenis = () => {
       gsap.ticker.remove(update)
       lenis.destroy()
       lenisRef.current = null
+      useAppStore.getState().setLenis(null)
     }
   }, [isPreloaderDone])
 

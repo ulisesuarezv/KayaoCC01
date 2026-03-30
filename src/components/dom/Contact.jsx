@@ -1,11 +1,18 @@
-import { useRef, Suspense } from 'react'
+import { useRef, useCallback, Suspense } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, Environment } from '@react-three/drei'
+import { useAppStore } from '../../stores/useAppStore'
 
-const navItems = ['HOME', 'NOSOTROS', 'MANIFESTO', 'CONTACT']
+const navItems = [
+  { label: 'HOME', section: 'hero' },
+  { label: 'NOSOTROS', section: 'about' },
+  { label: 'MANIFESTO', section: 'manifesto' },
+  { label: 'PROCESO', section: 'process' },
+  { label: 'CONTACT', section: 'contact' },
+]
 
 const FooterK = () => {
   const meshRef = useRef(null)
@@ -35,6 +42,32 @@ export const Contact = () => {
   const linkRefs = useRef([])
   const linkQuickX = useRef([])
   const linkQuickY = useRef([])
+
+  const scrollToSection = useCallback((sectionId) => {
+    const lenis = useAppStore.getState().lenis
+
+    // Hero — always scroll to absolute top
+    if (sectionId === 'hero') {
+      if (lenis) lenis.scrollTo(0, { duration: 1.2 })
+      else window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
+    const target = document.querySelector(`[data-section="${sectionId}"]`)
+    if (!target) return
+
+    // Pinned sections need an offset to land past entrance animations
+    const pinnedOffsets = {
+      manifesto: window.innerHeight * 0.5,
+    }
+    const offset = pinnedOffsets[sectionId] || 0
+
+    if (lenis) {
+      lenis.scrollTo(target, { duration: 1.2, offset })
+    } else {
+      target.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [])
 
   useGSAP(() => {
     // Title -- clip-path reveal from bottom to top
@@ -122,7 +155,7 @@ export const Contact = () => {
         {/* "Kayao Studio" -- clip-path reveal */}
         <h2
           ref={titleRef}
-          className="absolute top-[8%] right-[6%] max-lg:right-[6%] max-lg:left-[5%] font-sleigh font-900 text-lime text-[clamp(1.5rem,8vw,10rem)] leading-[0.85] tracking-[-0.05em] text-right will-change-transform"
+          className="absolute top-[8%] right-[6%] max-lg:right-[6%] max-lg:left-[5%] font-sleigh font-900 text-lime text-[clamp(1.5rem,8vw,10rem)] max-lg:text-[clamp(4rem,18vw,8rem)] leading-[0.85] tracking-[-0.05em] text-right will-change-transform"
         >
           Kayao
           <br />
@@ -134,19 +167,19 @@ export const Contact = () => {
           href="https://www.instagram.com/kayao.studio"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-[8%] right-[6%] font-sleigh font-200 text-lime text-[clamp(0.65rem,1vw,1rem)] max-sm:text-[0.85rem] tracking-[0.15em] uppercase hover:text-white transition-colors duration-300"
+          className="absolute bottom-[8%] right-[6%] font-sleigh font-200 text-teal text-[clamp(0.65rem,1vw,1rem)] max-sm:text-[0.85rem] tracking-[0.15em] uppercase hover:text-white transition-colors duration-300"
         >
           IG | X
         </a>
 
         {/* Nav links -- magnetic hover */}
-        <nav ref={navRef} className="absolute bottom-[8%] left-[5%] flex flex-col gap-2">
-          {navItems.map((item, i) => (
-            <a
-              key={item}
+        <nav ref={navRef} className="absolute bottom-[8%] left-[5%] flex flex-col gap-1">
+          {navItems.map(({ label, section }, i) => (
+            <button
+              key={label}
               ref={(el) => (linkRefs.current[i] = el)}
-              href={`#${item.toLowerCase()}`}
-              className="font-sleigh font-700 text-lime/70 text-[clamp(0.8rem,1.2vw,1.1rem)] max-sm:text-[0.9rem] tracking-[0.15em] uppercase hover:text-lime transition-colors duration-300 inline-block will-change-transform"
+              onClick={() => scrollToSection(section)}
+              className="font-sleigh font-700 text-lime/70 text-[clamp(0.8rem,1.2vw,1.1rem)] max-sm:text-[0.9rem] tracking-[0.15em] uppercase hover:text-lime transition-colors duration-300 inline-block will-change-transform cursor-pointer text-left"
               onMouseMove={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect()
                 const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
@@ -159,8 +192,8 @@ export const Contact = () => {
                 linkQuickY.current[i]?.(0)
               }}
             >
-              {item}
-            </a>
+              {label}
+            </button>
           ))}
         </nav>
       </div>
@@ -169,7 +202,7 @@ export const Contact = () => {
       <div className="relative z-10 shrink-0 overflow-visible bg-lime">
         <p
           ref={marqueeRef}
-          className="font-sleigh font-900 text-dark text-[clamp(1.5rem,7vw,7rem)] leading-none whitespace-nowrap select-none pointer-events-none will-change-transform"
+          className="font-sleigh font-900 text-dark text-[clamp(1.5rem,7vw,7rem)] max-lg:text-[clamp(2.5rem,12vw,5rem)] leading-none whitespace-nowrap select-none pointer-events-none will-change-transform"
         >
           development. | UX&UI | webGL. | design | web&app | development. | UX&UI | webGL. | design | web&app
         </p>

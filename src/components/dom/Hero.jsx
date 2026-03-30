@@ -113,7 +113,7 @@ export const Hero = () => {
         {/* "creative" massive text -- fills width, cut by bottom edge */}
         <p
           ref={creativeRef}
-          className="absolute bottom-[-0.35em] max-lg:bottom-[-0.1em] left-0 w-full font-sleigh font-900 text-lime leading-[0.85] text-[clamp(16rem,32vw,35rem)] max-lg:text-[clamp(3.5rem,16vw,10rem)] select-none whitespace-nowrap text-center will-change-transform"
+          className="absolute bottom-[-0.35em] max-lg:bottom-[-0.1em] left-0 w-full font-sleigh font-900 text-lime leading-[0.85] text-[clamp(16rem,32vw,35rem)] max-lg:text-[clamp(5.5rem,30vw,14rem)] select-none whitespace-nowrap text-center will-change-transform"
         >
           creative
         </p>
@@ -123,13 +123,13 @@ export const Hero = () => {
       <div className="absolute bottom-[45%] right-[-2%] max-lg:right-[4%] max-lg:left-[3%] text-right z-20 translate-y-[30%]">
         <h1
           ref={titleRef}
-          className="font-sleigh font-900 text-dark leading-[0.85] text-[clamp(1.4rem,8vw,9rem)] will-change-transform"
+          className="font-sleigh font-900 text-dark leading-[0.85] text-[clamp(1.4rem,8vw,9rem)] max-lg:text-[clamp(2.8rem,14vw,6rem)] will-change-transform"
         >
           kayao studio
         </h1>
         <p
           ref={subtitleRef}
-          className="font-sleigh font-200 text-lime text-[clamp(0.45rem,1vw,1rem)] mt-3 tracking-[0.1em] uppercase"
+          className="font-sleigh font-200 text-lime text-[clamp(0.45rem,1vw,1rem)] max-lg:text-[clamp(0.65rem,2.5vw,0.95rem)] mt-3 max-lg:mt-2 tracking-[0.1em] uppercase"
         >
           development | UX&UI | webGL | design | web&amp;app
         </p>

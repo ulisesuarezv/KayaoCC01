@@ -13,7 +13,7 @@ export const Preloader = () => {
   const containerRef = useRef(null)
   const centerRef = useRef(null)
   const studioRef = useRef(null)
-  const turnRef = useRef(null)
+
   const phoneRef = useRef(null)
   const betaRef = useRef(null)
   const webRef = useRef(null)
@@ -70,15 +70,7 @@ export const Preloader = () => {
       0.2
     )
 
-    // 2. "Turn it now" appears below
-    tl.fromTo(
-      turnRef.current,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.6 },
-      0.8
-    )
-
-    // 3. Phone SVG fades in
+    // 2. Phone SVG fades in
     tl.fromTo(
       phoneRef.current,
       { opacity: 0, scale: 0.8 },
@@ -198,13 +190,6 @@ export const Preloader = () => {
         >
           kayao studio
         </h1>
-        <p
-          ref={turnRef}
-          className="font-sleigh font-200 text-lime leading-[1.1] select-none text-[clamp(1rem,2.5vw,2rem)] tracking-[0.08em] uppercase opacity-0"
-        >
-          Turn it now
-        </p>
-
         {/* Phone rotation animation */}
         <svg
           ref={phoneRef}
