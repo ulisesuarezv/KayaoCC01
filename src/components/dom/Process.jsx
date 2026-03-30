@@ -114,7 +114,7 @@ export const Process = () => {
         {/* "PROCESO" vertical giant -- left edge, parallax */}
         <p
           ref={procesoRef}
-          className="absolute top-[50%] left-[0%] -translate-y-1/2 max-lg:top-[2vh] max-lg:left-[50%] max-lg:-translate-x-1/2 max-lg:translate-y-0 font-sleigh font-900 text-dark text-[clamp(8rem,18vw,16rem)] max-lg:text-[clamp(4rem,25vw,9rem)] leading-[0.65] tracking-[-0.08em] select-none pointer-events-none z-10 [writing-mode:vertical-rl] max-lg:[writing-mode:horizontal-tb] will-change-transform"
+          className="absolute top-[50%] left-[0%] -translate-y-1/2 max-lg:top-[2vh] max-lg:left-[50%] max-lg:-translate-x-1/2 max-lg:translate-y-0 font-sleigh font-900 text-dark text-[clamp(8rem,18vw,16rem)] max-lg:text-[clamp(4rem,25vw,9rem)] max-lg:landscape:text-[clamp(2.5rem,10vh,5rem)] leading-[0.65] tracking-[-0.08em] select-none pointer-events-none z-10 [writing-mode:vertical-rl] max-lg:[writing-mode:horizontal-tb] will-change-transform"
         >
           PROCESO
         </p>
@@ -122,12 +122,12 @@ export const Process = () => {
         {/* Horizontal track -- circles slide left on scroll */}
         <div
           ref={trackRef}
-          className="absolute top-0 left-[calc(100vw-110vh)] max-lg:left-[10vw] h-full flex items-center gap-[5vw] max-lg:gap-[8vw] will-change-transform"
+          className="absolute top-0 left-[calc(100vw-110vh)] max-lg:left-[10vw] h-full flex items-center gap-[5vw] max-lg:gap-[8vw] max-lg:landscape:gap-[4vw] will-change-transform"
         >
           {steps.map((step, i) => (
             <div
               key={step.num}
-              className="relative shrink-0 h-[110%] max-lg:h-auto max-lg:w-[min(110vw,110vh)] aspect-square rounded-full bg-teal cursor-pointer will-change-transform overflow-hidden"
+              className="relative shrink-0 h-[110%] max-lg:h-auto max-lg:w-[min(110vw,110vh)] max-lg:landscape:w-[55vh] aspect-square rounded-full bg-teal cursor-pointer will-change-transform overflow-hidden"
               onMouseEnter={() => handleCircleEnter(i)}
               onMouseLeave={() => handleCircleLeave(i)}
               onMouseMove={(e) => handleCircleMove(e, i)}
@@ -135,7 +135,7 @@ export const Process = () => {
               {/* Number -- top area */}
               <span
                 data-animate
-                className="absolute top-[8%] left-[50%] -translate-x-1/3 max-lg:left-[50%] max-lg:-translate-x-1/2 font-sleigh font-900 text-white text-[clamp(6rem,14vw,14rem)] max-lg:text-[clamp(3rem,12vw,5rem)] leading-none select-none"
+                className="absolute top-[8%] left-[50%] -translate-x-1/3 max-lg:left-[50%] max-lg:-translate-x-1/2 font-sleigh font-900 text-white text-[clamp(6rem,14vw,14rem)] max-lg:text-[clamp(3rem,12vw,5rem)] max-lg:landscape:text-[clamp(1.5rem,7vh,3rem)] leading-none select-none"
               >
                 {step.num}.
               </span>
@@ -143,7 +143,7 @@ export const Process = () => {
               {/* Title -- left of number */}
               <h3
                 data-animate
-                className="absolute top-[22%] left-[12%] max-lg:top-[20%] max-lg:left-[15%] max-lg:right-[15%] font-sleigh font-700 text-dark text-[clamp(0.9rem,2vw,2rem)] max-lg:text-[clamp(0.85rem,3.5vw,1.4rem)] leading-tight"
+                className="absolute top-[22%] left-[12%] max-lg:top-[20%] max-lg:left-[15%] max-lg:right-[15%] font-sleigh font-700 text-dark text-[clamp(0.9rem,2vw,2rem)] max-lg:text-[clamp(0.85rem,3.5vw,1.4rem)] max-lg:landscape:text-[clamp(0.65rem,2vh,1rem)] leading-tight"
               >
                 {step.title}
               </h3>
@@ -151,7 +151,7 @@ export const Process = () => {
               {/* Description -- center-left */}
               <p
                 data-animate
-                className="absolute top-[52%] left-[15%] max-lg:top-[38%] max-lg:left-[15%] max-lg:right-[15%] max-w-[55%] max-lg:max-w-none font-sleigh font-200 text-dark/80 text-[clamp(0.75rem,1.4vw,1.35rem)] max-lg:text-[clamp(0.7rem,2.8vw,1rem)] leading-relaxed"
+                className="absolute top-[52%] left-[15%] max-lg:top-[38%] max-lg:left-[15%] max-lg:right-[15%] max-w-[55%] max-lg:max-w-none font-sleigh font-200 text-dark/80 text-[clamp(0.75rem,1.4vw,1.35rem)] max-lg:text-[clamp(0.7rem,2.8vw,1rem)] max-lg:landscape:text-[clamp(0.55rem,1.5vh,0.8rem)] leading-relaxed"
               >
                 {step.desc}
               </p>

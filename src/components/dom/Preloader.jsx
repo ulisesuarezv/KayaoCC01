@@ -14,7 +14,6 @@ export const Preloader = () => {
   const centerRef = useRef(null)
   const studioRef = useRef(null)
 
-  const phoneRef = useRef(null)
   const betaRef = useRef(null)
   const webRef = useRef(null)
   const circleRef = useRef(null)
@@ -70,26 +69,6 @@ export const Preloader = () => {
       0.2
     )
 
-    // 2. Phone SVG fades in
-    tl.fromTo(
-      phoneRef.current,
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 0.5 },
-      1.1
-    )
-
-    // 4. Phone rotation loop (portrait ↔ landscape)
-    tl.call(() => {
-      gsap.to(phoneRef.current, {
-        rotation: -90,
-        duration: 1,
-        ease: 'power2.inOut',
-        repeat: -1,
-        yoyo: true,
-        repeatDelay: 0.4,
-      })
-    })
-
     // 5. Bottom-left info fades in
     tl.fromTo(
       [betaRef.current, webRef.current],
@@ -129,9 +108,6 @@ export const Preloader = () => {
     }
 
     const tl = gsap.timeline()
-
-    // Kill phone rotation loop before exit
-    gsap.killTweensOf(phoneRef.current)
 
     // 1. Fade all elements out
     tl.to(
@@ -190,50 +166,6 @@ export const Preloader = () => {
         >
           kayao studio
         </h1>
-        {/* Phone rotation animation */}
-        <svg
-          ref={phoneRef}
-          width="36"
-          height="36"
-          viewBox="0 0 36 36"
-          fill="none"
-          className="mt-2 opacity-0"
-          aria-hidden="true"
-        >
-          {/* Phone body (portrait orientation) */}
-          <rect
-            x="10"
-            y="4"
-            width="16"
-            height="28"
-            rx="3"
-            stroke="#FBFF74"
-            strokeOpacity="0.6"
-            strokeWidth="1.5"
-          />
-          {/* Speaker/notch */}
-          <line
-            x1="15"
-            y1="7.5"
-            x2="21"
-            y2="7.5"
-            stroke="#FBFF74"
-            strokeOpacity="0.35"
-            strokeWidth="1"
-            strokeLinecap="round"
-          />
-          {/* Home indicator */}
-          <line
-            x1="15"
-            y1="28.5"
-            x2="21"
-            y2="28.5"
-            stroke="#FBFF74"
-            strokeOpacity="0.35"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
       </div>
 
       {/* ── Bottom-left info ── */}

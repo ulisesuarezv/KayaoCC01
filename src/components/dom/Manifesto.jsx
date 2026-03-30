@@ -113,13 +113,13 @@ export const Manifesto = () => {
         </p>
 
         {/* "nuestro manifesto" -- hidden initially, revealed on scroll */}
-        <div ref={titleRef} className="absolute top-[8%] right-[5%] max-lg:right-[4%] max-w-[420px] max-lg:max-w-[80vw] opacity-0 z-10 pointer-events-none">
-          <h2 className="font-sleigh font-900 text-white text-[clamp(2rem,4vw,4rem)] max-lg:text-[clamp(2.5rem,8vw,3.5rem)] leading-[0.9] mb-6 max-lg:mb-4">
+        <div ref={titleRef} className="absolute top-[8%] right-[5%] max-lg:right-[4%] max-w-[420px] max-lg:max-w-[80vw] max-lg:landscape:max-w-[45vw] max-lg:landscape:top-[5%] opacity-0 z-10 pointer-events-none">
+          <h2 className="font-sleigh font-900 text-white text-[clamp(2rem,4vw,4rem)] max-lg:text-[clamp(2.5rem,8vw,3.5rem)] max-lg:landscape:text-[clamp(1.4rem,4vh,2.2rem)] leading-[0.9] mb-6 max-lg:mb-4 max-lg:landscape:mb-2">
             nuestro
             <br />
             manifesto
           </h2>
-          <p className="font-sleigh font-200 text-lime text-[clamp(0.75rem,1vw,1rem)] max-lg:text-[clamp(0.7rem,2.5vw,0.95rem)] leading-relaxed max-lg:mb-6">
+          <p className="font-sleigh font-200 text-lime text-[clamp(0.75rem,1vw,1rem)] max-lg:text-[clamp(0.7rem,2.5vw,0.95rem)] max-lg:landscape:text-[clamp(0.6rem,1.5vh,0.8rem)] leading-relaxed max-lg:mb-6 max-lg:landscape:mb-2">
             Kayao desarrolla web&apps inmersivas mediante experiencias
             personalizadas que explotan tu marca.
           </p>
@@ -128,7 +128,7 @@ export const Manifesto = () => {
         {/* Big centered statement -- hidden initially */}
         <p
           ref={bigTextRef}
-          className="absolute top-[28%] left-[8%] right-[8%] max-lg:top-[38%] max-lg:left-[4%] max-lg:right-[4%] font-sleigh font-900 text-white text-[clamp(1.2rem,4.5vw,4.5rem)] max-lg:text-[clamp(1.4rem,5.5vw,2.8rem)] leading-[1.15] text-center opacity-0 z-10 pointer-events-none"
+          className="absolute top-[28%] left-[8%] right-[8%] max-lg:top-[38%] max-lg:left-[4%] max-lg:right-[4%] max-lg:landscape:top-[30%] max-lg:landscape:left-[5%] max-lg:landscape:right-[5%] font-sleigh font-900 text-white text-[clamp(1.2rem,4.5vw,4.5rem)] max-lg:text-[clamp(1.4rem,5.5vw,2.8rem)] max-lg:landscape:text-[clamp(0.9rem,3.5vh,1.5rem)] leading-[1.15] text-center opacity-0 z-10 pointer-events-none"
         >
           Diseño, interacción y tecnología que convierten. Creamos experiencias
           digitales elegantes y fluidas que transmiten calidad, conectan con tu
