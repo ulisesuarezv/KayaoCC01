@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kayao Studio</title>
   </head>
-  <body>
+  <body style="overflow: hidden">
+    <!-- Static preloader shell — black screen before JS loads, removed by React Preloader -->
+    <div id="preloader-shell" style="
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000000;
+    "></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

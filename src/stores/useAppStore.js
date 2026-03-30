@@ -19,6 +19,8 @@ export const useAppStore = create((set) => ({
   setCurrentSection: (section) => set({ currentSection: section }),
   setScrollProgress: (progress) => set({ scrollProgress: progress }),
   setIsTransitioning: (transitioning) => set({ isTransitioning: transitioning }),
+  isPreloaderDone: false,
+  setPreloaderDone: () => set({ isPreloaderDone: true }),
   // Mutate in place — no set() call, no new object, no re-render, no GC
   setSectionProgress: (name, progress) => {
     sectionProgress[name] = progress

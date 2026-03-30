@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -13,10 +13,13 @@ export const Hero = () => {
   const titleRef = useRef(null)
   const subtitleRef = useRef(null)
   const sceneRef = useRef(null)
+  const introRef = useRef(null)
+
+  const isPreloaderDone = useAppStore((s) => s.isPreloaderDone)
 
   useGSAP(() => {
-    // === ENTRANCE (one-shot on load) ===
-    const intro = gsap.timeline({ defaults: { ease: 'power3.out' } })
+    // === ENTRANCE (paused — played when preloader completes) ===
+    const intro = gsap.timeline({ defaults: { ease: 'power3.out' }, paused: true })
     intro
       .fromTo(creativeRef.current,
         { yPercent: 30, opacity: 0 },
@@ -33,6 +36,7 @@ export const Hero = () => {
         { opacity: 1, y: 0, duration: 0.8 },
         0.8
       )
+    introRef.current = intro
 
     // === ZOOM TRANSITION to About (pinned, scrub-driven) ===
     const zoom = gsap.timeline({
@@ -83,6 +87,13 @@ export const Hero = () => {
       willChange: 'auto',
     }, 0.5)
   }, { scope: sectionRef })
+
+  // Play entrance animation after preloader exits
+  useEffect(() => {
+    if (isPreloaderDone && introRef.current) {
+      introRef.current.play()
+    }
+  }, [isPreloaderDone])
 
   return (
     <SectionWrapper id="hero" className="relative flex flex-col" ref={sectionRef}>
